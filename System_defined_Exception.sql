@@ -1,0 +1,86 @@
+--SYSTEM DEFINED EXCEPTIONS
+--An exception in SQL represents a run-time error that occurs during 
+--the execution of SQL code.
+--These errors can be caused by various factors,
+--such as 
+--invalid data, 
+--constraint violations,
+--system-related issues.
+--01.NO_DATA_FOUND EXCEPTION
+SET SERVEROUTPUT ON
+DECLARE
+FNAME VARCHAR2(20);
+LNAME VARCHAR2(20);
+SAL NUMBER;
+JOBID VARCHAR2(20);
+BEGIN
+ SELECT
+ FIRST_NAME,
+ LAST_NAME,
+ SALARY,
+ JOB_ID INTO FNAME,LNAME,SAL,JOBID
+ FROM EMPLOYEES
+ WHERE EMPLOYEE_ID=&EID;
+DBMS_OUTPUT.PUT_LINE(FNAME||' '||LNAME||' '||SAL||' '||JOBID);
+
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('NO SUCH EMPLOYEE PRESENT');
+END;
+
+----------------------------------------------------------------------
+--02.TOO_MANY_ROWS
+SET SERVEROUTPUT ON
+DECLARE
+FNAME VARCHAR2(20);
+LNAME VARCHAR2(20);
+SAL NUMBER;
+BEGIN
+SELECT FIRST_NAME,LAST_NAME,SALARY INTO FNAME,LNAME,SAL
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID=&DID;
+EXCEPTION
+ WHEN TOO_MANY_ROWS THEN
+ DBMS_OUTPUT.PUT_LINE('PLEASE USE CURSOR');
+END;
+----------------------------------------------------------------------
+--03.INVALID CURSOR
+
+--FETCH FIRST_NAME,LAST_NAME,EXPERIENCE
+SET SERVEROUTPUT ON
+DECLARE
+ CURSOR EMP_CUR                     --Step1.Declare the cursor with name
+ IS
+  SELECT 
+  FIRST_NAME,
+  LAST_NAME,
+  ROUND(MONTHS_BETWEEN(SYSDATE,HIRE_DATE)/12,2) AS TOTAL_EXP
+  FROM EMPLOYEES
+  WHERE DEPARTMENT_ID=&DID;
+  
+  FNAME VARCHAR2(20);
+  LNAME VARCHAR2(20);
+  T_EXP NUMBER;
+  
+BEGIN
+--   OPEN EMP_CUR;                     --Step2. Open the cursor
+     LOOP
+          FETCH EMP_CUR INTO FNAME,LNAME,T_EXP;           --step3.Load the current row into variables
+          DBMS_OUTPUT.PUT_LINE(FNAME||' '||LNAME||' '||T_EXP);
+          EXIT WHEN EMP_CUR%NOTFOUND;
+     END LOOP;
+   CLOSE EMP_CUR;                           --Close the cursor
+EXCEPTION
+ WHEN INVALID_CURSOR THEN
+ DBMS_OUTPUT.PUT_LINE('OPEN CURSOR');
+END;
+
+
+
+
+
+
+
+
+
+
